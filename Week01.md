@@ -38,7 +38,7 @@
  ```  
  * 위에 태그 문법은 문자열,HTML도 아닌 JSX(JavaScript XML)라는 JavaScript XML을 추가하여  
  확장한 문법이다.
- * JSX는 **React ''엘리먼트(element)''**를 생성한다. React 엘리먼트는 브라우저 DOM  
+ * JSX는 **React ''엘리먼트(element)''** 를 생성한다. React 엘리먼트는 브라우저 DOM  
  엘리먼트와 달리 일반 객체이다.
  * React는 JSX 사용이 필수가 아니지만, JS 코드 안에서 UI관련 작업을 할 수 있기 때문에 시각적  
  으로 더 도움이 된다. 또한 JSX를 사용하면 React가 더욱 도움이 되는 에러 및 경고 메세지를 표시할 수 있게 해준다.
@@ -76,6 +76,16 @@ class App extends React.Component{
 ReactDOM.render(<App/>,document.getElementById('root'));
 ```
 ### **props란?**
+- 프로퍼티, props(properties의 줄임말)라고 한다.
+- 상위 컴포넌트가 하위 컴포넌트에 값을 전달할때 사용한다.
+- 프로퍼티는 수정할 수 없는 읽기 전용 데이터 임  
+### **기본 값 설정** 
+* Component.defaultProps = {...}
+### **Type 검증**
+* Component.propTypes = {...}
+* 특정 props 값 특정 Type 이 아니거나 필수 props 값이 입력되지 않았을 경우 경고창 띄울 수 있음
+* 코드의 **유지보수** 를 위해서 설정할 필요가 있음
+
 ```JavaScript
 class Codelab extends React.Component{
     render(){
@@ -89,11 +99,12 @@ class Codelab extends React.Component{
     }
 }
 
+/*Type 검증*/
 Codelab.propTypes = {
     name:React.PropTypes.string,
     number:React.PropTypes.number.isRequired
 };
-
+/*defaultProps설정*/
 Codelab.defaultProps={
     name:'Unknown'
 };
@@ -105,8 +116,8 @@ class App extends React.Component{
         );
     }
 }
-
-ReactDom.render(<App number={this.props.name}>I am your child</App>,document.getElementById('root'));
+/* App-Component의 Codelab-Component로 전달> props 값 설정 */
+ReactDom.render(<App number={5}>I am your child</App>,document.getElementById('root'));
 ```
 >### 🚀**Advanced**:
 
