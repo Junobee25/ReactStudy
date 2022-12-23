@@ -226,17 +226,41 @@ ReactDOM.render(
 ---
 
 > ## _섹션 2. 섹션 3. 개발환경 설정, 프로젝트 진행_
->
-> 📖 배운 내용:
+### **`버전 Issue로 인한 오류들`**
+1. `npm install --save-dev react-hot-loader webpack webpack-dev-server`  
+💡`npm install react@^17.0.1 react-dom@17.0.1` => React와 React-DOM 의 버전을  
+ 라이브러리 버전에 맞게 다운그레이드 해주면 됨
+2. webpack.config.js mode 설정
+ 💡webpack.config.js -> mode:'develoment' , package.json -> "dev": "webpack --mode development",  
+3. hot 삭제
+4. inline 삭제
+5. contentBase -> static
+6. loaders -> rules , loader:'bable' -> loader:'babel-loader'
+7. query -> options ,  presets: ['es2015', 'react'] -> presets:["@babel/preset-env", "@babel/preset-react"]
+
+### **`react-hot-loader`**
+* 컴포넌트가 수정이되서 reload 될때 state를 파괴시키지 않고 유지
 
 
 >### 🚀**Advanced**:
 
+
 ---
 
 > ## _섹션 3. 섹션 4. 주소록 (Contact) 만들기_
->
-> 📖 배운 내용:  
-> ❓ 궁금증:
+### **`검색기능`**  
+* keyword 공백으로 고정시킨걸 handleChange 메서드를통해 value로 설정
+* mapToComponents sort,filter활용
+### **`선택기능`**
+* 객체 Key 값과 handleClick 메서드를 통해 설계
+### **`추가기능`**
+* handleChange에 비어있는 객체를 만들어 여러개의 인풋를 처리할 수 있게 함
+### **`삭제기능`**
+* handleRemove `this.state,seletedKey<0` 리턴x
+### **`수정기능`**
+* handleEdit 기능 다시 확인 (댓글 수정안됨)
+
+>### 🚀**Advanced**:
+* **`indexOf()`** : 찾는 문자열 없으면 -1 return
 
 ---
