@@ -101,7 +101,7 @@ class Codelab extends React.Component{
 
 /*Type 검증*/
 Codelab.propTypes = {
-    name:React.PropTypes.string,
+    name:React.PropTypes.string,  // import PropTypes from 'prop-types' -> name : PropTypes.string
     number:React.PropTypes.number.isRequired
 };
 /*defaultProps설정*/
@@ -222,7 +222,7 @@ ReactDOM.render(
 );
 ```
 >### **`🚀Advanced`**:
-1. props vs state : 
+
 ---
 
 > ## _섹션 2. 섹션 3. 개발환경 설정, 프로젝트 진행_
