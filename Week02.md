@@ -360,8 +360,139 @@ root.render(
 ### **`Store`가 하는일**
 3,4,5,6
 
+>## _섹션 6. Backend_
 
+### **`Node.js`**
+* 브라우저가 아닌 환경에서 JS를 사용할 수있게해주는 JS 런타임
 
+### **`Express`**
+* 웹 서버에서 필요한 기능이 구현된 WEB 프레임 워크 (routing,session,template)
+
+### **`Express`사용방법**
+```JavaScript
+# node.js
+npm install --save express
+```
+
+### **`Express`서버 만들기**
+
+```JavaScript
+// 기본 라우팅
+// app.METHOD(PATH,HANDLER)
+// METHOD : HTTP 요청 메소드 - get,post,delete,put ...
+// PATH : 라우트 경로
+// HANDLER: 실행 될 콜백함수
+var express = require('express'); // express 모듈 불러오기
+var app = express() // express 생성
+
+// get 요청이 들어오면 callback 함수 실행
+app.get('/',function(req,res){
+  res.send('Hello World')
+})
+
+// 서버 열기 -> 포트번호 필요함
+app.listen(3000,function(){
+  console.log('Example App is listening on port 3000');
+})
+```
+
+### **`더 많은 라우팅`** main.js
+```JavaScript
+// :id 는 동적 이고 특정 값을 받으면 함수 실행
+app.get('/user/:id',function(rea,res){
+  res.send('Received a GET request,param:' + req.params.id);
+});
+// json 형태의 응답
+app.get('/user',function(req,res){
+  res.json({success:true})
+});
+// status 메서드를 통해 400 응답
+app.put('/user',function(req,res){
+  res.status(400).json({message:'Hey,you.Bad Request!'});
+});
+// delete
+app.delete('/user',function(req,res){
+  res.send('Received a DELETE request');
+});
+
+app.listen(3000,function(){
+  console.log('Example App is listening on port 3000');
+})
+// POSTMAN을 통해 post put 등 요청에 대해서도 확인가능
+```
+
+### **``user 라우트 모듈화``해서 내보내기** -> 유지보수 용이하게 routes/user.js
+
+```JavaScript
+var express = require('express');
+// 라우터 객체 생성
+var router = express.Router();
+// user 라는 라우트 요청이 들어오면 user.js 에있는 라우터로 연결시켜 요청에 따라 작업 진행
+router.get(':/id', function(req,res){
+  res.send('Received a GET request,param:' + req.params.id);
+});
+
+router.post('/',function(req,res){
+  res.json({success:true});
+});
+
+router.put('/',function(req,res){
+  res.status(400).json({message:'Hey,you.Bad Request!}');
+});
+
+router.delete('/',function(req,res){
+  res.send('Received a DELETE request');
+});
+
+module.exports = router;
+
+```
+### **`main.js`**
+```JavaScript
+// user.js 에서 내보낸 router 객체 main.js에서 불러오기
+var user = require('./routes/user');
+app.use('/user',user);
+```
+
+### **`미들 웨어`**
+* 미들웨어 함수는 요청 오브젝트 (req), 응답 오브젝트 (res), 그리고 APP의 요청-응답  
+주기 중 그 다음의 미들웨어 함수에 대한 액세스 권한을 갖는 함수
+* HTTP 요청과 라우트 작업 중간에 들어가는 작업 (Express에서 없는 기능 직접 구현 가능)
+
+### **`미들 웨어 만들기`** Main.js 직접 구현
+```JavaScript
+// 요청이 들어와서 처리 하기 함수가 실행되어 처리하고 콜백함수인 next실행시 다른 미들웨어 or 라우팅 작업
+var myLogger = function(req,res,next){
+  console.log(req,url);
+  next();
+};
+// 미들 웨어 사용
+app.use(myLogger);
+```
+### **`있는 미들웨어 사용`**
+```JavaScipt
+npm install -- save morgan body-parser
+```
+* morgan : 로깅 미들웨어
+* body-parser : JSON 형태 데이터 파싱
+
+### **`nodemon, supervisor 사용`**
+```JavaScript
+// 코드 수정시 서버 재시작 안해도 되는 도구
+npm install -g nodemon
+npm install -g supervisor
+```
+
+### **`정적(static) 파일 제공`**
+```JavaScript
+// Html Img Css JavaScript을 브라우저에서 접근하게 해줌 (static 미들웨어)
+app.use('/',express.static('public'))
+```
+
+## **`MongoDB`**
+* NoSQL DB
+* 문서지향적 데이터 베이스 (Key,Value,Collection)
+* 기존의 관계지향적 데이터 베이스의 제약해결
 
 
 
