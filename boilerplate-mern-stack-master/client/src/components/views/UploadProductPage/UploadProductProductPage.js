@@ -1,8 +1,19 @@
 // rfce로 functinal 컴포넌트 생성
 import React , {useState} from "react";
 import {Typography,Button,Form,Input} from 'antd';
+import FileUpload from "../../utils/FileUpload";
 
 const {TextArea} = Input;
+
+const Continents = [ 
+  {key:1, value:"Africa"},
+  {key:2, value:"Europe"},
+  {key:3, value:"Asia"},
+  {key:4, value:"North America"},
+  {key:5, value:"South America"},
+  {key:6, value:"Australia"},
+  {key:7, value:"Antarctica"}
+]
 // 1. 비어있는 업로드 페이지 생성
 function UploadProductProductPage() {
 
@@ -21,6 +32,9 @@ function UploadProductProductPage() {
   const priceChangeHandler = (event) => {
     setPrice(event.currentTarget.value)
   }
+  const continentChangeHandler = (event) => {
+    setContinent(event.currentTarget.value)
+  }
   return (
     <div style={{ maxWidth: "700px", margin: "2rem auto" }}>
       <div style={{ textAlign: "center", marginBottom: "2rem" }}>
@@ -29,6 +43,7 @@ function UploadProductProductPage() {
 
       <Form>
         {/* DropZone */}
+        <FileUpload/>
         <br />
         <br />
         <label>이름</label>
@@ -43,8 +58,10 @@ function UploadProductProductPage() {
         <Input type="number" onChange={priceChangeHandler} value={Price}/>
         <br />
         <br />
-        <select>
-          <option></option>
+        <select onChange={continentChangeHandler} value={Continent}>
+          {Continents.map(item =>(
+            <option key={item.key} value={item.key}>{item.value}</option>
+          ))}
         </select>
         <br />
         <br />
