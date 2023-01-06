@@ -265,6 +265,181 @@ function FileUpload(props) {
 
 ```
 
+### 📌Image 지우기 `deleteHandler` 사용
+✅FileUpload.js 
+```JavaScript
+ const deleteHandler = (image) => {
+    const currentIndex = Images.indexOf(image);  // 배열속 image index 찾기
+
+    let newImages = [...Images];  // image state 복사
+    newImages.splice(currentIndex, 1);  // splice를 통해 currentIndex 포함 1개만 제거
+    setImages(newImages);  //setImages로 저장
+    props.refreshFunction(newImages);
+  };
+
+```
+
+### 📌FileUpload.js 의 이미지 정보를 UploadProductPage.js(부모컴포넌트)로 올려줘야함
+**`FileUpload.js`** -> **`UploadProductPage.js`** -> **`Server`**
+✅ UploadProductPage.js
+```JavaScript
+const [Images, setImages] = useState([]);
+const updateImages = (newImages) => {
+    setImages(newImages);
+  };
+<FileUpload refreshFunction={updateImages} />
+```
+
+✅FileUpload.js
+```JavaScript
+function FileUpload(props) {
+  const [Images, setImages] = useState([]);
+  const dropHandler = (files) => {
+    let formData = new FormData();
+    const config = {
+      headers: { "content-type": "multipart/form-data" },
+    };
+    formData.append("file", files[0]);
+    axios.post("/api/product/image", formData, config).then((response) => {
+      if (response.data.success) {
+        setImages([...Images, response.data.filePath]);
+        props.refreshFunction([...Images, response.data.filePath]);  // props
+      } else {
+        alert("파일을 저장하는데 실패 했습니다.");
+      }
+    });
+  };
+
+  const deleteHandler = (image) => {
+    const currentIndex = Images.indexOf(image);
+
+    let newImages = [...Images];
+    newImages.splice(currentIndex, 1);
+    setImages(newImages);
+    props.refreshFunction(newImages);  props
+  };
+
+```
+
+### 📌 UploadProductPage.js 의 Image들 Submit 으로 DB에저장
+`MongoDB Collection`필요  `Model`만들기 (server/models/Product.js)  
+✅Product.js
+```JavaScript
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
+
+const productSchema = mongoose.Schema({
+  writer: {
+    type: Schema.Types.ObjectId,
+    ref:'User'
+  },
+  title: {
+    type: String,
+    maxlength:50
+  },
+  description: {
+    type: String,
+  },
+  price: {
+    type: Number,
+    default:0
+  },
+  images: {
+    type: Array,
+    default: []
+  },
+  sold: {
+    type: Number,
+    maxlength: 100,
+    default: 0
+  },
+  views: {
+    type: Number,
+    default: 0
+  } 
+},{timestamps:true});
+
+const Product = mongoose.model("Product", productSchema);
+
+module.exports = { Product };
+```
+
+📌 `Upload Submit` 만들기  
+✅UploadProductPage.js (Button 클릭시 submitHandler 발동)
+```JavaScript
+<Form onSubmit={submitHandler}>
+        {/* DropZone */}
+        <FileUpload refreshFunction={updateImages} />
+        <br />
+        <br />
+        <label>이름</label>
+        <Input onChange={titleChangeHandler} value={Title} />
+        <br />
+        <br />
+        <label>설명</label>
+        <TextArea onChange={descriptionChangeHandler} value={Description} />
+        <br />
+        <br />
+        <label>가격($)</label>
+        <Input type="number" onChange={priceChangeHandler} value={Price} />
+        <br />
+        <br />
+        <select onChange={continentChangeHandler} value={Continent}>
+          {Continents.map((item) => (
+            <option key={item.key} value={item.key}>
+              {item.value}
+            </option>
+          ))}
+        </select>
+        <br />
+        <br />
+        <Button onClick={submitHandler}>확인</Button>  // onClick 
+      </Form>
+```
+✅ `submitHnadler`
+```JavaScript
+  const submitHandler = (event) => {
+    event.preventDefault();
+
+    if (!Title || !Description || !Price || !Continent || !Images) {
+      return alert("모든 값을 넣어주셔야 합니다.");
+    }  // 모든 값 채워지지 않을 때
+
+    //서버에 채운 값들을 request로 보낸다.
+    const body = {
+      //로그인 된 사람의 ID
+      writer: props.user.userData._id,  // auth.js에 있는 유저 정보를 props를 이용해서 가져오기
+      title: Title,
+      description: Description,
+      price: Price,
+      images: Images,
+      continents: Continent,
+    };
+    Axios.post("/api/product", body)  // Back End로 보내기
+      .then(response=>{
+        if(response.data.success){
+          alert('상품 업로드에 성공 했습니다.')
+          props.history.push('/') // submit후 메인 페이지로
+        } else {
+          alert('상품 업로드에 실패 했습니다.')
+        }
+      })
+  };
+```
+
+✅ routes/product.js에서 route 만들어 주기
+```JavaScript
+const { Product } = require("../models/Product");
+router.post("/", (req, res) => {
+  // 받아온 정보들을 DB에 넣어 준다.
+  const product = new Product(req.body);
+
+  product.save((err)=>{
+    if(err) return res.status(400).json({success:false,err})
+    return res.status(200).json({success:true})
+  });
+});
+```
 
 
 
