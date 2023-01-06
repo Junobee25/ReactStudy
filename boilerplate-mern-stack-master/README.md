@@ -148,6 +148,124 @@ function FileUpload() {
 export default FileUpload;
 
 ```
+# _2023-01-06_
+### 📌 Drop-zone 파일 Back End로 보내기 
+✅ FileUpload.js 의 Drop-zone `dropHandler`
+```JavaScript
+import axios from "axios"; // Front End 선택한 파일 -> Back End로 전달
+
+function FileUpload(props) {
+  const [Images, setImages] = useState([]);
+  const dropHandler = (files) => {
+    let formData = new FormData();
+    const config = {
+      headers: { "content-type": "multipart/form-data" },
+    };
+    formData.append("file", files[0]);
+    axios.post("/api/product/image", formData, config).then((response) => {
+      if (response.data.success) {
+        setImages([...Images, response.data.filePath]);
+        props.refreshFunction([...Images, response.data.filePath])
+
+      } else {
+        alert("파일을 저장하는데 실패 했습니다.");
+      }
+    });
+  };
+<Dropzone onDrop={dropHandler}>
+        {({ getRootProps, getInputProps }) => (
+          <div
+            style={{
+              width: 300,
+              height: 240,
+              border: "1px solid lightgray",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+            {...getRootProps()}
+          >
+            <input {...getInputProps()} />
+            <Icon type="plus" style={{ fontsize: "3rem" }} />
+          </div>
+        )}
+  </Dropzone>
+
+```
+### 📌 axios.post -> router로 받고,저장 (server/routes/product.js)
+✅ product.js (가져온 이미지를 저장 -> multer 라이브러리를 사용해야 함)  
+[multer사용법](https://www.npmjs.com/package/multer) `install`
+```JavaScript
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/");  // 파일 저장 공간
+  },
+  filename: function (req, file, cb) {
+    cb(null, `${Date.now()}_${file.originalname}`);  // 저장 시 이름
+  },
+});
+
+const upload = multer({ storage: storage }).single("file");  // 가져온 이미지
+
+router.post("/image", (req, res) => {
+  // 가져온 이미지를 저장해주면 됨.
+  upload(req, res, (err) => {
+    if (err) {
+      return req.json({ success: false, err });
+    }
+    return res.json({
+      success: true,
+      filePath: res.req.file.path,  // 파일 저장 경로
+      fileName: res.req.file.filename,  // 파일 이름
+    });
+  });
+});
+
+```
+### 📌 이미지에 대한 정보 {success,filePath,fileName} 를 BackEnd로 전달하기 위해 state로 저장
+```JavaScript
+function FileUpload(props) {
+  const [Images, setImages] = useState([]);  // 배열 -> 이미지 여러개
+  const dropHandler = (files) => {
+    let formData = new FormData();
+    const config = {
+      headers: { "content-type": "multipart/form-data" },
+    };
+    formData.append("file", files[0]);
+    axios.post("/api/product/image", formData, config).then((response) => {
+      if (response.data.success) {
+        setImages([...Images, response.data.filePath]);
+        props.refreshFunction([...Images, response.data.filePath])
+
+      } else {
+        alert("파일을 저장하는데 실패 했습니다.");
+      }
+    });
+  };
+```
+✅ Drop한 이미지에 대한 UI
+```JavaScript
+<div
+        style={{
+          display: "flex",
+          width: "350px",
+          height: "240px",
+          overflowX: "scroll",
+        }}
+      >
+        {Images.map((image, index) => (
+          <div onClick={() => deleteHandler(image)} key={index}>
+            <img
+              style={{ minWidth: "300px", width: "300px", height: "240px" }}
+              src={`http://localhost:5000/${image}`}
+            />
+          </div>
+        ))}
+      </div>
+
+```
+
+
 
 
 
