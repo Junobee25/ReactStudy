@@ -119,6 +119,7 @@ import FileUpload from '../../utils/FileUpload';
 npm install react-dropzone --save
 ```
 `Drop-Zone` npm 사용방법  
+[Drop-zone](https://www.npmjs.com/package/react-dropzone)  
 ✅ FileUpload.js
 ```JavaScript
 import React from "react";
