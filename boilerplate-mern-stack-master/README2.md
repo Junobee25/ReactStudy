@@ -168,3 +168,176 @@ router.post('/products',(res,req)=>{
 })
 
 ```
+
+### 더보기버튼(2) Click시 사진 추가 (SKIP,LIMIT) 다시 들어보기
+✅LandingPage.js  
+```JavaScript
+useEffect(() => {
+    let body = {
+      skip: Skip,
+      limit: Limit,
+    };
+    getProducts(body);
+},[])
+const getProducts = (body) => {
+    axios.post("/api/product/products", body).then((response) => {
+      if (response.data.success) {
+        if (body.loadMore) {
+          setProducts([...Products, ...response.data.productInfo]);
+        } else {
+          setProducts(response.data.productInfo);
+        }
+        setPostSize(response.data.postSize)
+      } else {
+        alert("상품들을 가져오는데 실패 했습니다.");
+      }
+    });
+  };
+const loadMoreHandler = () => {
+
+    let skip = Skip + Limit // 0 + 8 -> 8 + 8
+
+    let body = {
+      skip: Skip,
+      limit: Limit,
+      loadMore: true,
+    };
+
+
+    getProducts(body);
+    setSkip(skip);
+
+}
+```
+💡PostSize를 통해 더보기 버튼 없애주기
+```JavaScript
+const [PostSize, setPostSize] = useState(0);
+
+{PostSize>=Limit &&
+        <div style={{ display: "flex", justifyContent: "center" }}>
+            <button onClick={loadMoreHandler}>더보기</button>
+        </div>
+      }
+```
+✅product.js
+```JavaScript
+Product.find(findArgs)
+    .populate("writer") // 이 사람에 대한 모든 정보 가져오기
+    .skip(skip)
+    .limit(limit)
+    .exec((err, productInfo) => {
+      if (err) return res.status(400).json({ success: false });
+      return res.status(200).json({ success: true, productInfo,
+                                    postSize:productInfo.length});
+    });
+```
+# _2023-01-13_
+## CheckBox 만들기
+1. CheckBox 리스트 데이터 만들기
+2. CheckBox를 위한 UI 만들기
+3. onChange Function 만들기
+4. Checked State를 부모 Component로 Update하기
+### 1. CheckBox 리스트 데이터 만들기
+client/src/components/views/LandingPage/Sections/Datas.js
+✅Datas.js (Data만들기)
+```JavaScript
+const continents = [
+    {
+        "_id":1,
+        "name":"Africa"
+    },
+    {
+        "_id":2,
+        "name":"Europe"
+    },
+    {
+        "_id":3,
+        "name":"Asia"
+    },
+    {
+        "_id":4,
+        "name":"North America"
+    },
+    {
+        "_id":5,
+        "name":"South America"
+    },
+    {
+        "_id":6,
+        "name":"Australia"
+    },
+    {
+        "_id":7,
+        "name":"Antarctica"
+    }
+
+]
+
+export {
+    continents
+}
+```
+### CheckBox UI 만들기
+💡`antd` - `Collapse`,`antd`-`CheckBox`로 Design  
+📌 CheckBox.js 새로운 컴포넌트 만들어 관리  
+client/src/components/views/LandingPage/Sections/Datas.js  
+✅CheckBox.js (LandingPage import 해주기)
+```JavaScript
+
+import React, { useState } from "react";
+import {Collapse,Checkbox} from "antd";
+
+const {Panel} = Collapse;
+function CheckBox(props) { //props list
+
+    const [Checked,setChecked] = useState([])
+
+    const handelToggle = (value) => {
+
+      // 누른 것의 Index를 구하고
+
+      const currentIndex = Checked.indexOf(value)
+
+      // 전체 Checked된 State에서 현재 누른 CheckBox가 이미 있다면
+
+      const newChecked = [...Checked]
+      // State 젛어준다
+      if(currentIndex === -1){
+        newChecked.push(value)
+      // 빼주고
+      } else{
+        newChecked.splice(currentIndex,1)
+      }
+      setChecked(newChecked)
+      props.handleFilters(newChecked)
+    }
+
+    const renderCheckboxLists = () => props.list && props.list.map((value,index)=>(
+        <React.Fragment key={index}>
+            <Checkbox onChange={() => handelToggle(value._id)} 
+            checked={Checked.indexOf(value._id) === -1 ? false : true}/>
+                <span>{value.name}</span> 
+        </React.Fragment>
+    ))
+  return (
+    <div>
+      <Collapse defaultActiveKey={["1"]}>
+        <Panel header="This is panel header 1" key="1">
+            {renderCheckboxLists()}
+        </Panel>
+      </Collapse>
+    </div>
+  );
+}
+
+export default CheckBox;
+
+
+```
+✅LandingPage.js에서 사용
+```JavaScript
+<Checkbox list={continents} handleFilters={filter=>handleFilters(filter,"continents")}/>
+```
+
+
+
