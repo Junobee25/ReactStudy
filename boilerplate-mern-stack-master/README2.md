@@ -43,3 +43,51 @@ router.post('/products',(res,req)=>{
     })
 })
 ```
+
+### 3. Landing Page UI 만들기
+💡`Done-zone` 해준 Object를 LandingPage.js(UI)로 전달 , Design -> antd 사용
+✅LandingPage.js(UI)
+```Javascript
+ <div style={{ width: "75%", margin: "3rem auto" }}>
+    <div style={{ textAlign: 'center' }}>
+        <h2>Let's Travel AnyWhere</h2>
+    </div>
+
+    <div style={{ justifyContent: 'center' }}>
+        <button>더보기</button>
+    </div>
+ </div>
+
+ <Row gutter={[16,16]}> // gutter 여백 생김
+ {renderCards}
+ </Row>
+```
+
+```JavaScript
+import { Icon, Col, Card, Row} from 'antd';
+  const [Products, setProducts] = useState([]); // 
+
+  axios.post('/api/product/products')
+    .then(response => {
+        if (response.data.success){
+            console.log(response.data)
+            setProducts(response.data.productInfo);
+        } else {
+            alert("상품들을 가져오는데 실패했다.")
+        }
+    })
+
+```
+product 에는 Object의 정보들이 Collection 형태로 저장되어 있음
+```JavaScript
+const renderCards = Products.map((product,index)=>{ //map : 으로 product control후 카드로 생성
+    return <Col lg={6} md={8} xs={24}> 
+    <Card key = {index} cover={
+        <img style={{witdh:'100%',maxHeight:'150px'}}src= {`http://localhost:5000/${product.images[0]}`}/>}>
+        <Meta title={product.title} description={`$${product.price}`}/>
+            </Card>
+        </Col>
+})
+
+// Card 에는 Image 정보를 Meta에는 Title와 가격에 대한 정보를 받아옴
+```
