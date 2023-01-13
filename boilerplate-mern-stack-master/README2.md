@@ -124,3 +124,47 @@ ImageSlider 사용
 <Card cover = {<ImageSlider images={product.images}/>}>
 </Card>
 ```
+### 더보기 Button 만들기
+🚀 *사용된 MongoDB Method : SKIP,LIMIT*  
+`SKIP`: 어디서 부터 데이터를 가져오는지에 대한 위치
+처음에는 0부터 시작 Limit이 6이라면 다음은 2rd Skip = 0 + 6  
+`LIMIT`: 처음 데이터를 가져올때와 더보기 버튼을 눌러서 가져올 때 얼마나 많은 데이터를 한번에 가져오는지
+✅LandingPage.js  
+`Button` onClick Function을 통해 Control
+```JavaScript
+// state로 Skip과 Limit를 관리
+const [Skip,setSkip] = useState(0)
+const [Limit,setLimit] = useState(8)
+
+// Skip,Limit 이용해서 8개만 가져올 수 있게함
+useEffect(() =>{
+    let body ={
+        skip:skip,
+        limit:Limit
+    }
+})
+//더보기 Button onClick
+const loadMoreHandler = () => {
+
+}
+ <button onClick={loadMoreHandler}>더보기</button>
+```
+✅product.js
+```JavaScript
+router.post('/products',(res,req)=>{
+    // skip 과 limit에 대한 정보 받아주기
+     let limit = req.body.limit ? parseInt(req.body.limit) : 20;
+     let skip = req.body.skip ? parseInt(req.body.skip) : 0;
+    // product collection에 들어 있는 모든 상품 정보를 가져오기
+    // Product Model에 collection 찾기 find
+    Product.find()  // writer의 ID이용해서 writer의 모든 정보가져오기
+    .populate("writer")
+    .skip(skip) // MongoDB에 알려주기 
+    .limit(limit) // 8개만 가져오기 (state = 8)
+    .exec((err,productInfo)=>{
+        if(err) return res.status(400).json({success:false,err})
+        return res.status(200).json({success:true,productInfo})
+    })
+})
+
+```
