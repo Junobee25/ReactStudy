@@ -44,7 +44,7 @@ router.post('/products',(res,req)=>{
 })
 ```
 
-### 3. Landing Page UI 만들기
+### 3. Landing Page UI 만들기 (Card 만들기)
 💡`Done-zone` 해준 Object를 LandingPage.js(UI)로 전달 , Design -> antd 사용
 ✅LandingPage.js(UI)
 ```Javascript
@@ -90,4 +90,37 @@ const renderCards = Products.map((product,index)=>{ //map : 으로 product contr
 })
 
 // Card 에는 Image 정보를 Meta에는 Title와 가격에 대한 정보를 받아옴
+```
+# _2023-01-12_
+### 3. Landing Page UI 만들기 (Image Slider)
+💡`antd` - `Carousel` 사용 (새로운 컴포넌트로 관리)
+client/src/components/utils/ImageSlider.js  
+✅ ImageSlider.js  // LandingPage.js에서 사용하기 위해 import ImageSlider 해주기  
+`autoplay` -> 슬라이딩 자동으로 해주는 함수
+```JavaScript
+import React from 'react'
+import { Carousel } from 'antd'
+//image -> product.images를 props로 가져오고 map으로 컨트롤
+function ImageSlider(props) {
+  return (
+    <div>
+        <Carousel autoplay>
+            {props.images.map((image,index)=>(
+                <div key={index}>
+                    <img style={{width:'100%',maxHeight:'150px'}}
+                        src={`http://localhost:5000/${image}`}/> 
+                </div>
+            ))}
+        </Carousel>
+  </div>
+  )
+}
+
+export default ImageSlider
+```
+✅LandingPage.js
+ImageSlider 사용
+```JavaScript
+<Card cover = {<ImageSlider images={product.images}/>}>
+</Card>
 ```
