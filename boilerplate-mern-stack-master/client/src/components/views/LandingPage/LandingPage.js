@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { FaCode } from "react-icons/fa";
 import axios from "axios";
-import { Icon, Col, Card, Row, Carousel } from "antd";
+import { Icon, Col, Card, Row, Carousel, Radio } from "antd";
 import Meta from "antd/lib/card/Meta";
 import ImageSlider from "../../utils/ImageSlider";
 import Checkbox from "./Sections/CheckBox";
+import RadioBox from "./Sections/RadioBox";
 import { continents } from "./Sections/Datas";
+import { price } from "./Sections/Datas";  // Price 데이터 import
 
 function LandingPage() {
   const [Products, setProducts] = useState([]);
@@ -94,9 +96,17 @@ function LandingPage() {
         </h2>
       </div>
       {/** Filter */}
-
-      {/** CheckBox */}
-      <Checkbox list={continents} handleFilters={filter=>handleFilters(filter,"continents")}/>
+      <Row gutter={[16,16]}>
+        <Col lg={12} xs={24}>
+            {/** CheckBox */}
+            <Checkbox list={continents} handleFilters={filter=>handleFilters(filter,"continents")}/>
+        </Col>
+        <Col lg={12} xs={24}>
+            <RadioBox list ={price} handleFilters={filter=>handleFilters(filter,"price")} ></RadioBox>
+        </Col>
+      </Row>
+      
+  
 
       {/** RadioBox */}
 
