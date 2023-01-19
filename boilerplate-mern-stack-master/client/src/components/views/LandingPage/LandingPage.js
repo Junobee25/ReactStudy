@@ -8,6 +8,7 @@ import Checkbox from "./Sections/CheckBox";
 import RadioBox from "./Sections/RadioBox";
 import { continents } from "./Sections/Datas";
 import { price } from "./Sections/Datas"; // Price 데이터 import
+import SearchFeature from "./Sections/SearchFeature";
 
 function LandingPage() {
   const [Products, setProducts] = useState([]);
@@ -18,6 +19,7 @@ function LandingPage() {
     continents: [],
     price: [],
   });
+  const [SearchTerm, setSearchTerm] = useState("")
 
   useEffect(() => {
     let body = {
@@ -102,6 +104,9 @@ function LandingPage() {
     showFilterResults(newFilters);
     setFilters(newFilters)
   };
+  const updateSearchTerm = (newSearchTerm) => {
+    setSearchTerm(newSearchTerm)
+  }
   return (
     <div style={{ width: "75%", margin: "3rem auto" }}>
       <div style={{ textAlign: "center" }}>
@@ -130,6 +135,12 @@ function LandingPage() {
       {/** RadioBox */}
 
       {/** Search */}
+      <div style={{display:'flex',justifyContent:'flex-end',margin:'1rem auto'}}>
+      <SearchFeature
+          refreshFunction={updateSearchTerm}
+        />    
+      </div>
+      
       {/** Card */}
 
       <Row gutter={[16]}>{renderCards}</Row>

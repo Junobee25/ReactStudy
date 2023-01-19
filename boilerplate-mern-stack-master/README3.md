@@ -124,3 +124,80 @@ for(let key in req.body.filters){
   }
   console.log('findArgs',findArgs)
 ```
+## 검색 기능 만들기
+1. SearchFeature Component 만들기
+2. Search 기능을 위한 UI 만들기
+3. onChange Function 만들기
+4. search Data를 부모 컴포넌트에 업데이트 하기
+
+### 1. SearchFeature Component 만들기
+✅ client/src/components/views/LandingPage/Sections/SearchFeature.js  
+-> rfce 후 LandingPage 에서 import 후 사용
+### 2. Search 기능을 위해 UI 만들기
+📌 antd - input ,search  
+✅ SearchFeature.js
+```JavaScript
+import React from 'react';
+import { Input } from 'antd';
+const { Search } = Input;
+```
+✅ LandingPage.js
+```JavaScript
+<div style={{display:'flex',justifyContent:'flex-end',margin:'1rem auto'}}>
+      <SearchFeature/>   
+```
+### 3. onChange Function
+searchHandler and useState  
+✅ SearchFeature.js
+```JavaScript
+function SearchFeature() {
+
+    const [SearchTerm, setSearchTerm] = useState("") // 기본 빈값
+    const searchHandler = (event) => {
+        setSearchTerm(event.currentTarget.value) // 타이핑할 때마다 바꿔주기
+    }
+  return (
+    <div> 
+        <Search
+    placeholder="input search text"
+    onChange={searchHandler}
+    style={{ width: 200,}}
+    value={SearchTerm}  // value는 use State로 넣어주기
+  /></div>
+  )
+}
+```
+### 4. search Data를 부모 컴포넌트에 업데이트 하기 (SearchTerm -> LandingPage)
+SearchTerm Update
+✅ LandingPage.js
+```JavaScript
+<SearchFeature refreshFunction={updateSearchTerm}/>   
+```
+✅ SearchFeature.js
+```JavaScript
+function SearchFeature(props) {
+
+    const [SearchTerm, setSearchTerm] = useState("")
+    const searchHandler = (event) => {
+        setSearchTerm(event.currentTarget.value)
+        props.refreshFunction(event.currentTarget.value) // 타이핑 할 때마다 바뀐 값이 LandingPage로 전달
+    }
+  return (
+    <div> 
+        <Search
+    placeholder="input search text"
+    onChange={searchHandler}
+    style={{ width: 200,}}
+    value={SearchTerm}
+  /></div>
+  )
+}
+```
+✅ LandingPage.js (전달받은 props를 state에 담기)
+```JavaScript
+const [SearchTerm, setSearchTerm] = useState("")
+const updateSearchTerm = (newSearchTerm) => {
+    setSearchTerm(newSearchTerm)
+  }
+```
+
