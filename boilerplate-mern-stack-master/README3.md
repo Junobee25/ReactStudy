@@ -11,14 +11,16 @@
 
 📌 client/src/components/LandingPage/Sections/Datas.js  
 _UI에 `export`할 data만들어주기_
+
 ### 2. UI 만들기
+
 LandingPage.js
 
 ```JavaScript
 <Row gutter={[16,16]}>
     <Col lg={12} xs={24}>
         {/** CheckBox */}
-        <Checkbox list={continents} handleFilters=          
+        <Checkbox list={continents} handleFilters=
         {filter=>handleFilters(filter,"continents")}/>
     </Col>
     <Col lg={12} xs={24}>
@@ -28,8 +30,11 @@ LandingPage.js
     </Col>
 </Row>
 ```
+
 ### 3,4 onChange Function + useState로 업데이트
+
 RadioBox.js
+
 ```JavaScript
 import React, { useState } from "react";
 import { Collapse, Radio } from "antd";
@@ -63,14 +68,18 @@ function RadioBox(props) {
 
 export default RadioBox;
 ```
+
 # _2023-01-19_
-## 라디오박스 필터 만들기 2 
+
+## 라디오박스 필터 만들기 2
+
 1. handleFilter Function
 2. handleFilter를 위한 handlePrice funcion 만들기
 3. 필터 기능을 위한 getProduct Router 수정
 
-✅ 1,2 handleFilter Function  handleFilter를 위한 handlePrice funcion 만들기  
+✅ 1,2 handleFilter Function handleFilter를 위한 handlePrice funcion 만들기  
 LandingPage.js
+
 ```JavaScript
  const handlePrice = (value) => {
     const data = price;
@@ -98,9 +107,11 @@ LandingPage.js
     setFilters(newFilters)
   };
 ```
+
 ✅ 3. 필터 기능을 위한 getProduct Router 수정
 
 product.js
+
 ```JavaScript
 for(let key in req.body.filters){
 
@@ -124,31 +135,42 @@ for(let key in req.body.filters){
   }
   console.log('findArgs',findArgs)
 ```
+
 ## 검색 기능 만들기
+
 1. SearchFeature Component 만들기
 2. Search 기능을 위한 UI 만들기
 3. onChange Function 만들기
 4. search Data를 부모 컴포넌트에 업데이트 하기
 
 ### 1. SearchFeature Component 만들기
+
 ✅ client/src/components/views/LandingPage/Sections/SearchFeature.js  
 -> rfce 후 LandingPage 에서 import 후 사용
+
 ### 2. Search 기능을 위해 UI 만들기
+
 📌 antd - input ,search  
 ✅ SearchFeature.js
+
 ```JavaScript
 import React from 'react';
 import { Input } from 'antd';
 const { Search } = Input;
 ```
+
 ✅ LandingPage.js
+
 ```JavaScript
 <div style={{display:'flex',justifyContent:'flex-end',margin:'1rem auto'}}>
-      <SearchFeature/>   
+      <SearchFeature/>
 ```
+
 ### 3. onChange Function
+
 searchHandler and useState  
 ✅ SearchFeature.js
+
 ```JavaScript
 function SearchFeature() {
 
@@ -157,7 +179,7 @@ function SearchFeature() {
         setSearchTerm(event.currentTarget.value) // 타이핑할 때마다 바꿔주기
     }
   return (
-    <div> 
+    <div>
         <Search
     placeholder="input search text"
     onChange={searchHandler}
@@ -167,13 +189,18 @@ function SearchFeature() {
   )
 }
 ```
+
 ### 4. search Data를 부모 컴포넌트에 업데이트 하기 (SearchTerm -> LandingPage)
+
 SearchTerm Update
 ✅ LandingPage.js
+
 ```JavaScript
-<SearchFeature refreshFunction={updateSearchTerm}/>   
+<SearchFeature refreshFunction={updateSearchTerm}/>
 ```
+
 ✅ SearchFeature.js
+
 ```JavaScript
 function SearchFeature(props) {
 
@@ -183,7 +210,7 @@ function SearchFeature(props) {
         props.refreshFunction(event.currentTarget.value) // 타이핑 할 때마다 바뀐 값이 LandingPage로 전달
     }
   return (
-    <div> 
+    <div>
         <Search
     placeholder="input search text"
     onChange={searchHandler}
@@ -193,7 +220,9 @@ function SearchFeature(props) {
   )
 }
 ```
+
 ✅ LandingPage.js (전달받은 props를 state에 담기)
+
 ```JavaScript
 const [SearchTerm, setSearchTerm] = useState("")
 const updateSearchTerm = (newSearchTerm) => {
@@ -201,3 +230,77 @@ const updateSearchTerm = (newSearchTerm) => {
   }
 ```
 
+### 검색기능 만들기2
+
+1. 검색 값을 이용한 getProduct Function을 작동시키기
+2. Search 기능을 위해서 getProduct Route 수정하기
+3. Search 기능을 가능하게 하기 위해서 Produt Model에 무엇을 추가하기
+
+✅ LadingPage.js
+
+1. 검색 값을 이용한 getProduct Function 작동
+   updateSearchTerm에서 `getProducts` 통해 body 값에 맞게  
+    back end에서 처리
+
+```JavaScript
+ const updateSearchTerm = (newSearchTerm) => {
+   let body = {
+     skip:0,
+     limit:Limit,
+     filters:Filters,
+     SearchTerm:newSearchTerm
+   }
+   setSkip(0)
+   setSearchTerm(newSearchTerm)
+   getProducts(body)
+ }
+```
+
+2.  Search 기능을 위해서 `getProduct Route` 수정하기
+    ✅product.js
+
+```JavaScript
+let limit = req.body.limit ? parseInt(req.body.limit) : 20;
+ let skip = req.body.skip ? parseInt(req.body.skip) : 0;
+ let term = req.body.searchTerm // Input에 입력한 값이 term에 할당
+
+ if(term){
+
+   Product.find(findArgs)
+   .find({$text:{$search:term}}) // mongoDB 문법을 써야함 타이핑한 searchTerm에 대해 mongoDB의 Collection과 일치하는 자료를 가져옴
+   .populate("writer") // 이 사람에 대한 모든 정보 가져오기
+   .skip(skip)
+   .limit(limit)
+   .exec((err, productInfo) => {
+     if (err) return res.status(400).json({ success: false });
+     return res.status(200).json({ success: true, productInfo,
+                                   postSize:productInfo.length});
+   })
+
+ }else{
+
+   Product.find(findArgs)
+   .populate("writer") // 이 사람에 대한 모든 정보 가져오기
+   .skip(skip)
+   .limit(limit)
+   .exec((err, productInfo) => {
+     if (err) return res.status(400).json({ success: false });
+     return res.status(200).json({ success: true, productInfo,
+                                   postSize:productInfo.length});
+   })
+
+ }
+```
+3. Search 기능을 가능하게 하기 위해서 Product Model에 무엇을 추가 해주기
+✅ Product.js
+```JavaScript
+productSchema.index({
+  title:'text',
+  description:'text'
+},{
+  weights:{
+    title:5,
+    description:1
+  }
+})
+```

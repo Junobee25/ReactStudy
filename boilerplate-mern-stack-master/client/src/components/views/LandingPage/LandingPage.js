@@ -18,7 +18,7 @@ function LandingPage() {
   const [Filters, setFilters] = useState({
     continents: [],
     price: [],
-  });
+  })
   const [SearchTerm, setSearchTerm] = useState("")
 
   useEffect(() => {
@@ -52,6 +52,7 @@ function LandingPage() {
       skip: skip,
       limit: Limit,
       loadMore: true,
+      filters:Filters
     };
 
     getProducts(body);
@@ -104,8 +105,17 @@ function LandingPage() {
     showFilterResults(newFilters);
     setFilters(newFilters)
   };
+  // Input 
   const updateSearchTerm = (newSearchTerm) => {
+    let body = {
+      skip:0,
+      limit:Limit,
+      filters:Filters,
+      searchTerm:newSearchTerm
+    }
+    setSkip(0)
     setSearchTerm(newSearchTerm)
+    getProducts(body)
   }
   return (
     <div style={{ width: "75%", margin: "3rem auto" }}>
