@@ -10,8 +10,8 @@
 ### 1. RadioBox 리스트 데이터들 만들기
 
 📌 client/src/components/LandingPage/Sections/Datas.js  
-_UI에 export할 data만들어주기_
-
+_UI에 `export`할 data만들어주기_
+### 2. UI 만들기
 LandingPage.js
 
 ```JavaScript
@@ -28,6 +28,7 @@ LandingPage.js
     </Col>
 </Row>
 ```
+### 3,4 onChange Function + useState로 업데이트
 RadioBox.js
 ```JavaScript
 import React, { useState } from "react";
@@ -61,4 +62,65 @@ function RadioBox(props) {
 }
 
 export default RadioBox;
+```
+# _2023-01-19_
+## 라디오박스 필터 만들기 2 
+1. handleFilter Function
+2. handleFilter를 위한 handlePrice funcion 만들기
+3. 필터 기능을 위한 getProduct Router 수정
+
+✅ 1,2 handleFilter Function  handleFilter를 위한 handlePrice funcion 만들기  
+LandingPage.js
+```JavaScript
+ const handlePrice = (value) => {
+    const data = price;
+    let array = [];
+    for (let key in data) {
+      if (data[key]._id === parseInt(value, 10)) {
+        array = data[key].array;
+      }
+    }
+    return array;
+  };
+
+  const handleFilters = (filters, category) => {
+    const newFilters = { ...Filters };
+
+    newFilters[category] = filters;
+
+    console.log("filters", filters);
+
+    if (category === "price") {
+      let priceValues = handlePrice(filters);
+      newFilters[category] = priceValues;
+    }
+    showFilterResults(newFilters);
+    setFilters(newFilters)
+  };
+```
+✅ 3. 필터 기능을 위한 getProduct Router 수정
+
+product.js
+```JavaScript
+for(let key in req.body.filters){
+
+    if(req.body.filters[key].length>0){
+
+      console.log('key',key)  // <----
+      if(key === "price"){
+        findArgs[key] = {
+          // greater than equal 이것보다 크거나 같고
+          $gte:req.body.filters[key][0], // 0
+          // less than equal [0,199],[200,249],,,,
+          $lte:req.body.filters[key][1] // 199
+        }
+
+      }else{
+        findArgs[key] = req.body.filters[key];
+      }
+
+    }
+
+  }
+  console.log('findArgs',findArgs)
 ```

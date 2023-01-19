@@ -7,17 +7,17 @@ import ImageSlider from "../../utils/ImageSlider";
 import Checkbox from "./Sections/CheckBox";
 import RadioBox from "./Sections/RadioBox";
 import { continents } from "./Sections/Datas";
-import { price } from "./Sections/Datas";  // Price 데이터 import
+import { price } from "./Sections/Datas"; // Price 데이터 import
 
 function LandingPage() {
   const [Products, setProducts] = useState([]);
   const [Skip, setSkip] = useState(0);
   const [Limit, setLimit] = useState(8);
   const [PostSize, setPostSize] = useState(0);
-  const [Filters,setFilters] = useState({
-    continents:[],
-    price:[]
-  })
+  const [Filters, setFilters] = useState({
+    continents: [],
+    price: [],
+  });
 
   useEffect(() => {
     let body = {
@@ -36,7 +36,7 @@ function LandingPage() {
         } else {
           setProducts(response.data.productInfo);
         }
-        setPostSize(response.data.postSize)
+        setPostSize(response.data.postSize);
       } else {
         alert("상품들을 가져오는데 실패 했습니다.");
       }
@@ -67,26 +67,41 @@ function LandingPage() {
   });
 
   const showFilterResults = (filters) => {
-
     let body = {
-      skip:0,
-      limit:Limit,
-      filters:filters
+      skip: 0,
+      limit: Limit,
+      filters: filters,
+    };
+
+    getProducts(body);
+    setSkip(0);
+  };
+
+  const handlePrice = (value) => {
+    const data = price;
+    let array = [];
+    for (let key in data) {
+      if (data[key]._id === parseInt(value, 10)) {
+        array = data[key].array;
+      }
     }
+    return array;
+  };
 
-    getProducts(body)
-    setSkip(0)
+  const handleFilters = (filters, category) => {
+    const newFilters = { ...Filters };
 
-  }
+    newFilters[category] = filters;
 
-  const handleFilters = (filters,category) => {
-    
-    const newFilters = {...Filters}
+    console.log("filters", filters);
 
-    newFilters[category] = filters
-    
-    showFilterResults(newFilters)
-  }
+    if (category === "price") {
+      let priceValues = handlePrice(filters);
+      newFilters[category] = priceValues;
+    }
+    showFilterResults(newFilters);
+    setFilters(newFilters)
+  };
   return (
     <div style={{ width: "75%", margin: "3rem auto" }}>
       <div style={{ textAlign: "center" }}>
@@ -96,17 +111,21 @@ function LandingPage() {
         </h2>
       </div>
       {/** Filter */}
-      <Row gutter={[16,16]}>
+      <Row gutter={[16, 16]}>
         <Col lg={12} xs={24}>
-            {/** CheckBox */}
-            <Checkbox list={continents} handleFilters={filter=>handleFilters(filter,"continents")}/>
+          {/** CheckBox */}
+          <Checkbox
+            list={continents}
+            handleFilters={(filter) => handleFilters(filter, "continents")}
+          />
         </Col>
         <Col lg={12} xs={24}>
-            <RadioBox list ={price} handleFilters={filter=>handleFilters(filter,"price")} ></RadioBox>
+          <RadioBox
+            list={price}
+            handleFilters={(filter) => handleFilters(filter, "price")}
+          ></RadioBox>
         </Col>
       </Row>
-      
-  
 
       {/** RadioBox */}
 
@@ -115,13 +134,11 @@ function LandingPage() {
 
       <Row gutter={[16]}>{renderCards}</Row>
 
-      {PostSize>=Limit &&
+      {PostSize >= Limit && (
         <div style={{ display: "flex", justifyContent: "center" }}>
-            <button onClick={loadMoreHandler}>더보기</button>
+          <button onClick={loadMoreHandler}>더보기</button>
         </div>
-      }
-
-      
+      )}
     </div>
   );
 }
