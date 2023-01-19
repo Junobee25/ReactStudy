@@ -55,8 +55,8 @@ function RadioBox(props) {
    }
   return (
     <div>
-      <Collapse defaultActiveKey={["1"]}>
-        <Panel header="This is panel header 1" key="1">
+      <Collapse defaultActiveKey={["0"]}>
+        <Panel header="Price" key="1">
             <Radio.Group onChange={handleChange} value={Value}>
                 {renderRadioBox()}
             </Radio.Group>
@@ -304,3 +304,65 @@ productSchema.index({
   }
 })
 ```
+# _2022-01-20_
+## 상세 보기 페이지 만들기
+### 상품의 상세정보를 DB에서 ㅏ져오기
+1. 빈 상품 상세 페이지 만들기
+2. Product detail page를 위한 Route만들기
+3. Product 정보를 DB에서 가져오기
+4. Product detail 페이지 UI 만들기  
+
+___
+1. 상품들의 Unique Id를 이용해서 링크주기   
+
+✅ LandingPage.js
+```JavaScript
+<Card cover=
+{<a href={`/product/${product._id}`}><ImageSlider images={product.images}/></a>}
+>
+```
+[고유한ID값으로링크주기](http://localhost:3000/product/63bd7cec55d1aa2d308ac094)  
+2. Proudect detail page를 위한 Route만들기  
+✅ App.js
+유동적으로 바뀌는 url에 대한 path 설정해주기
+```JavaScript
+<Route exact path="/product/:productId" component={Auth(DetailProductPage, null)} /> {/**아무나 들어갈 수있도록 null */}
+```
+3. product 정보를 DB에서 가져오기  
+상세보기 창에 보여지는 Price , Sold, View, Description에 대한 정보를 ID를 이용해서 가져오기  
+✅ DetailProductPage.js *(`useEffect`를 통해서 id값을 쿼리형태로)*
+```JavaScript
+function DetailProductPage(props) {
+    const productId = props.match.params.productId
+    useEffect(() => {
+        axios.get(`/api/product/products_by_id?id=${productId}&type=single`)
+            .then(response => {
+                if(response.data.success){
+
+                }else{
+                    alert('상세 정보 가져오기를 실패했습니다')
+                }
+            })
+      return () => {
+
+      }
+    },[])
+```
+✅product.js
+```Javascript
+router.get("/products_by_id", (req, res) => {
+  let type = req.query.type
+  let productId = req.query.id
+
+  // productId를 이용해서 DB에서 productId와 같은 상품의 정보를 가져온다.
+  Product.find({_id:productId})
+  .populate('writer')
+  .exec((err,product)=>{
+    if(err) return res.status(400).send(err)
+    return res.status(200).send({success:true,product})
+  })
+
+});
+
+```
+[response.data](http://localhost:3000/product/63bd7cec55d1aa2d308ac094)
