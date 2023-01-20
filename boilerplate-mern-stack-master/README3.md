@@ -291,8 +291,10 @@ let limit = req.body.limit ? parseInt(req.body.limit) : 20;
 
  }
 ```
+
 3. Search 기능을 가능하게 하기 위해서 Product Model에 무엇을 추가 해주기
-✅ Product.js
+   ✅ Product.js
+
 ```JavaScript
 productSchema.index({
   title:'text',
@@ -304,33 +306,43 @@ productSchema.index({
   }
 })
 ```
+
 # _2022-01-20_
+
 ## 상세 보기 페이지 만들기
+
 ### 상품의 상세정보를 DB에서 ㅏ져오기
+
 1. 빈 상품 상세 페이지 만들기
 2. Product detail page를 위한 Route만들기
 3. Product 정보를 DB에서 가져오기
-4. Product detail 페이지 UI 만들기  
+4. Product detail 페이지 UI 만들기
 
-___
-1. 상품들의 Unique Id를 이용해서 링크주기   
+---
+
+1. 상품들의 Unique Id를 이용해서 링크주기
 
 ✅ LandingPage.js
+
 ```JavaScript
 <Card cover=
 {<a href={`/product/${product._id}`}><ImageSlider images={product.images}/></a>}
 >
 ```
+
 [고유한ID값으로링크주기](http://localhost:3000/product/63bd7cec55d1aa2d308ac094)  
 2. Proudect detail page를 위한 Route만들기  
 ✅ App.js
 유동적으로 바뀌는 url에 대한 path 설정해주기
+
 ```JavaScript
 <Route exact path="/product/:productId" component={Auth(DetailProductPage, null)} /> {/**아무나 들어갈 수있도록 null */}
 ```
+
 3. product 정보를 DB에서 가져오기  
-상세보기 창에 보여지는 Price , Sold, View, Description에 대한 정보를 ID를 이용해서 가져오기  
-✅ DetailProductPage.js *(`useEffect`를 통해서 id값을 쿼리형태로)*
+   상세보기 창에 보여지는 Price , Sold, View, Description에 대한 정보를 ID를 이용해서 가져오기  
+   ✅ DetailProductPage.js _(`useEffect`를 통해서 id값을 쿼리형태로)_
+
 ```JavaScript
 function DetailProductPage(props) {
     const productId = props.match.params.productId
@@ -348,7 +360,9 @@ function DetailProductPage(props) {
       }
     },[])
 ```
+
 ✅product.js
+
 ```Javascript
 router.get("/products_by_id", (req, res) => {
   let type = req.query.type
@@ -365,4 +379,159 @@ router.get("/products_by_id", (req, res) => {
 });
 
 ```
+
 [response.data](http://localhost:3000/product/63bd7cec55d1aa2d308ac094)
+
+---
+
+### Product detail 페이지 UI 만들기 (갤러리 라이브러리)
+
+💡C:\Users\Bae J\Desktop\성장\ReactStudy\ReactStudy\boilerplate-mern-stack-master\client>  
+npm install react-image-gallery --save
+
+### 상세보기 UI, product data
+
+✅ DetailProductPage.js (response로 받은 객체형식의 product data를 state로 관리)
+
+```JavaScript
+import React from 'react'
+import axios from 'axios'
+import { useEffect,useState } from 'react'
+function DetailProductPage(props) {
+    const productId = props.match.params.productId
+    const [Product, setProduct] = useState({}) // 상세보기 response.data state로 관리
+
+    useEffect(() => {
+        axios.get(`/api/product/products_by_id?id=${productId}&type=single`)
+            .then(response => {
+                if(response.data.success){
+                    console.log('response.data',response.data)
+                    setProduct(response.data.product[0])
+                }else{
+                    alert('상세 정보 가져오기를 실패했습니다')
+                }
+            })
+      return () => {
+
+      }
+    },[])
+
+  return (
+    <div style={{width:'100%',padding:'3rem 4rem'}}>
+      <div style={{width:'flex',justifyContent:'center'}}>
+        <h1>{Product.title}</h1>
+      </div>
+
+      <br/>
+      {/** ProductImage */}
+      {/** ProductInfo */}
+    </div>
+  )
+}
+```
+
+### `Image` ,`Info Component` (썸네일 다음에 만들어보기)
+
+```JavaScript
+import ProductImage from './Sections/ProductImage'
+import ProductInfo from './Sections/ProductInfo'
+import { Row, Col } from "antd"; // 반응형으로 만들기
+
+
+<Row gutter={[16, 16]}>
+    <Col lg={12} sm={24}>
+      {/** ProductImage */}
+      <ProductImage />
+    </Col>
+
+    <Col lg={12} sm={24}>
+      {/** ProductInfo */}
+      <ProductInfo />
+      </Col>
+</Row>
+```
+
+### Image Component
+
+```JavaScript
+import React,{useState,useEffect} from 'react';
+import ImageGallery from 'react-image-gallery'; // ImageGallery 사용
+
+function ProductImage(props) {
+
+    const [images, setImages] = useState([])
+
+    useEffect(() => {
+      if(props.detail.images && props.detail.images.length > 0){
+        let images = []
+
+        props.detail.images.map(item => {
+            images.push({
+                original: `http://localhost:5000/${item}`, // Dynamic하게 바꿔줘야 함
+                thumbnail:`http://localhost:5000/${item}`
+            })
+        })
+        setImages(images)
+      }
+
+      return () => {
+
+      }
+    }, [props.detail]) // props.detail이 바뀔때마다 lift cycle을 한번더 실행
+
+
+  return (
+    <div>
+        <ImageGallery items={images}/>
+    </div>
+  )
+}
+
+export default ProductImage
+```
+
+### Info Component 만들기 (Antd사용)
+
+```JavaScript
+import { Button, Descriptions } from "antd";
+import React from "react";
+function ProductInfo(props) {
+  // props로 정보 가져오기
+  return (
+    <div>
+      <Descriptions title="Product Info" bordered>
+        <Descriptions.Item label="Price">{props.detail.price}</Descriptions.Item>
+        <Descriptions.Item label="Sold">{props.detail.sold}</Descriptions.Item>
+        <Descriptions.Item label="View">{props.detail.views}</Descriptions.Item>
+        <Descriptions.Item label="Description">{props.detail.description}</Descriptions.Item>
+      </Descriptions>
+      <br />
+      <br />
+      <br />
+      <div style={{ display: "flex", justifyContent: "center" }}>
+        <Button size="large" shape="round" type="danger">
+            Add to Cart
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+export default ProductInfo;
+```
+
+### Cart 만들기 (User Collection 에서 데이터 관리)
+
+User Model에 cart, history field 만들기
+✅ User.js
+
+```JavaScript
+cart:{
+      type:Array,
+      default: []
+    },
+history:{
+    type:Array,
+    default:[]
+    }
+```
