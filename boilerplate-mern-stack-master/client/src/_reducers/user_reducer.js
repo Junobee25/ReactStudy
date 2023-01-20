@@ -18,7 +18,11 @@ export default function(state={},action){
         case LOGOUT_USER:
             return {...state }
         case ADD_TO_CART:
-            return {...state }
+            return {...state,   // 모든 스테이트, 유저 정보 ,기존의 모든 정보,action cart 정보
+                    userData:{
+                        ...state.userData,
+                        cart:action.payload
+                    } }
         default:
             return state;
     }

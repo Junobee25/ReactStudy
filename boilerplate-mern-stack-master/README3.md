@@ -519,7 +519,9 @@ function ProductInfo(props) {
 
 export default ProductInfo;
 ```
-___
+
+---
+
 ### Cart 만들기 (User Collection 에서 데이터 관리)
 
 User Model에 cart, history field 만들기
@@ -539,14 +541,14 @@ history:{
 [MongoDBCollection Cart [id,quantity,date]](https://cloud.mongodb.com/v2/635671ed1d73b845fd4a776a#/metrics/replicaSet/63b27a4c854257296a61e7b7/explorer/test/users/find)  
 3가지 User Action에 관한 정보는 Redux를 통해 처리
 
-
 ✅ ProductInfo.js
+
 ```JavaScript
 import { useDispatch } from "react-redux"; // Redux Hook 이용
 import { addToCart } from "../../../../_actions/user_actions";
 function ProductInfo(props) {
     const dispatch = useDispatch();
-  
+
   const clickHandler = (event) => {
         // 필요한 정보를 Cart Field에 넣어주기 필요한 것 상품ID,갯수,date정보
         dispatch(addToCart(props.detail._id)) // action name -> addToCart(상품.id)
@@ -559,7 +561,9 @@ function ProductInfo(props) {
 ```
 
 ### Action
-✅ clinet/src/_actions/user_actions.sjs
+
+✅ clinet/src/\_actions/user_actions.sjs
+
 ```JavaScript
 export function addToCart(id){
     let body = {
@@ -574,13 +578,17 @@ export function addToCart(id){
     }
 }
 ```
+
 ✅types.js
+
 ```JavaScript
 export const ADD_TO_CART = 'add_to_cart';
 ```
 
 ### Reducer
-✅ clinet/src/_reducers/user_reducers.js
+
+✅ clinet/src/\_reducers/user_reducers.js
+
 ```JavaScript
 import {
     LOGIN_USER,
@@ -589,7 +597,7 @@ import {
     LOGOUT_USER,
     ADD_TO_CART
 } from '../_actions/types';
- 
+
 
 export default function(state={},action){
     switch(action.type){
@@ -608,22 +616,85 @@ export default function(state={},action){
     }
 }
 ```
+___
+### 🔥User routes 구현 server/routes/user.js
 
-### ✅User routes 설정 server/routes/user.js
+📌 카트 안에 내가 추가하는 상품이 이미 있다면 -> 상품 개수 1개 올리기  
+📌 이미 있지 않다면 -> Quantity는 1이됨  
+📌 이렇게 카트에 상품이 추가 된 정보를 Redux 안에 저장 -> Auth Route 바꾸기 cart field와 history field 추가
+
 ```JavaScript
 router.post("/addToCart", auth, (req, res) => {
-   // 먼저 User Collection에 해당 유저의 정보를 가져오기
+   // 먼저 User Collection에 해당 유저의 정보를 가져오기 (req.user 사용가능 -> middleware auth의 토큰이용)
+    User.findeOne({_id:req.user._id},
+        (err,userInfo) => {
+    // 가져온 정보에서 카트에다 넣으려 하는 상품이 이미 들어 있는지 확인
+    let duplicate = false;
+            userInfo.cart.forEach((item) => {
+                if(item.id === req.body.productId){
+                    duplicate = true;
+                }
+            })
+             // 상품이 이미 있을 때
+            if(duplicate){
+                User.findOneAndUpdate(
+                    // user id를 지정하고 해당 상품 cartid를 지정
+                    {_id:req.user._id,"cart,id":req.body.productId},
+                    {$inc:{"cart.$.quantitiy":1}}, // 갯수 1개 올려줌 2면 2개씩 올려줌
+                    {new:true}, // update된 결과 값을 받을려면 new:true옵션 줘야함
+                    (err,userInfo) => {
+                        if(err) return res.status(400).json({success:false,err})
+                        res.status(200).send(userInfo.cart) //cart collection
 
-   // 가져온 정보에서 카트에다 넣으려 하는 상품이 이미 들어 있는지 확인
-
-   // 상품이 이미 있을 때
-
-
-   // 상품이 이미 있지 않을 때
+                    }
+                )
+            // 상품이 이미 있지 않을 때
+            }else{
+                User.findOneAndUpdate(
+                    {_id:req.user._id},
+                    {
+                        $push:{  // cart에 id qua,date 넣어주기
+                            cart:{
+                                id:req.body.productId,
+                                quantity:1,
+                                date:Date.now()
+                            }
+                        }
+                    },
+                    {new:ture},
+                    (err,userInfo) => {
+                        if(err) return res.status(400).json({success:false,err})
+                        res.status(200).send(userInfo.cart)
+                    }
+                )
+            }
+        })
 });
 ```
+1. if문 통해서 cart data 보내주면 
+2. useraction의 request를통해
+3. userreducer ADD_TO_CART 해줌
 
-
-📌 카트 안에 내가 추가하는 상품이 이미 있다면 -> 상품 개수 1개 올리기
-📌 이미 있지 않다면 -> Quantity는 1이됨
-📌 이렇게 카트에 상품이 추가 된 정보를 Redux 안에 저장 -> Auth Route 바꾸기 cart field와 history field 추가
+✅ Reducer
+```JavaScript
+export default function(state={},action){
+    switch(action.type){
+        case REGISTER_USER:
+            return {...state, register: action.payload }
+        case LOGIN_USER:
+            return { ...state, loginSucces: action.payload }
+        case AUTH_USER:
+            return {...state, userData: action.payload }
+        case LOGOUT_USER:
+            return {...state }
+        case ADD_TO_CART:
+            return {...state,   // 모든 스테이트, 유저 정보 ,기존의 모든 정보,action cart 정보
+                    userData:{
+                        ...state.userData,
+                        cart:action.payload
+                    } }
+        default:
+            return state;
+    }
+}
+```

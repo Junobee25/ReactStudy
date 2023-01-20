@@ -69,14 +69,57 @@ router.get("/logout", auth, (req, res) => {
 });
 
 router.post("/addToCart", auth, (req, res) => {
-   // 먼저 User Collection에 해당 유저의 정보를 가져오기
+   // 먼저 User Collection에 해당 유저의 정보를 가져오기 (req.user 사용가능 -> middleware auth의 토큰이용)
+    User.findeOne({_id:req.user._id},
+        (err,userInfo) => {
+    // 가져온 정보에서 카트에다 넣으려 하는 상품이 이미 들어 있는지 확인
+    let duplicate = false;
+            userInfo.cart.forEach((item) => {
+                if(item.id === req.body.productId){
+                    duplicate = true;
+                }
+            })
+             // 상품이 이미 있을 때
+            if(duplicate){
+                User.findOneAndUpdate(
+                    // user id를 지정하고 해당 상품 cartid를 지정
+                    {_id:req.user._id,"cart,id":req.body.productId},
+                    {$inc:{"cart.$.quantitiy":1}}, // 갯수 1개 올려줌 2면 2개씩 올려줌
+                    {new:true}, // update된 결과 값을 받을려면 new:true옵션 줘야함
+                    (err,userInfo) => {
+                        if(err) return res.status(400).json({success:false,err})
+                        res.status(200).send(userInfo.cart) //cart collection
 
-   // 가져온 정보에서 카트에다 넣으려 하는 상품이 이미 들어 있는지 확인
+                    }
+                )
+            // 상품이 이미 있지 않을 때
+            }else{
+                User.findOneAndUpdate(
+                    {_id:req.user._id},
+                    {
+                        $push:{  // cart에 id qua,date 넣어주기
+                            cart:{
+                                id:req.body.productId,
+                                quantity:1,
+                                date:Date.now()
+                            }
+                        }
+                    },
+                    {new:ture},
+                    (err,userInfo) => {
+                        if(err) return res.status(400).json({success:false,err})
+                        res.status(200).send(userInfo.cart)
+                    }
+                )
+            }
+            
+        })
 
-   // 상품이 이미 있을 때
+
+  
 
 
-   // 상품이 이미 있지 않을 때
+   
 });
 
 
