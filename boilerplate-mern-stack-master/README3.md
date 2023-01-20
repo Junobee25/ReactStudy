@@ -519,7 +519,7 @@ function ProductInfo(props) {
 
 export default ProductInfo;
 ```
-
+___
 ### Cart 만들기 (User Collection 에서 데이터 관리)
 
 User Model에 cart, history field 만들기
@@ -535,3 +535,95 @@ history:{
     default:[]
     }
 ```
+
+[MongoDBCollection Cart [id,quantity,date]](https://cloud.mongodb.com/v2/635671ed1d73b845fd4a776a#/metrics/replicaSet/63b27a4c854257296a61e7b7/explorer/test/users/find)  
+3가지 User Action에 관한 정보는 Redux를 통해 처리
+
+
+✅ ProductInfo.js
+```JavaScript
+import { useDispatch } from "react-redux"; // Redux Hook 이용
+import { addToCart } from "../../../../_actions/user_actions";
+function ProductInfo(props) {
+    const dispatch = useDispatch();
+  
+  const clickHandler = (event) => {
+        // 필요한 정보를 Cart Field에 넣어주기 필요한 것 상품ID,갯수,date정보
+        dispatch(addToCart(props.detail._id)) // action name -> addToCart(상품.id)
+  }
+
+
+  <Button size="large" shape="round" type="danger" onClick={clickHandler}>
+            Add to Cart
+  </Button>
+```
+
+### Action
+✅ clinet/src/_actions/user_actions.sjs
+```JavaScript
+export function addToCart(id){
+    let body = {
+        productId : id
+    }
+    const request = axios.post(`${USER_SERVER}/addToCart`,body)
+    .then(response => response.data);
+
+    return {
+        type: ADD_TO_CART,
+        payload: request
+    }
+}
+```
+✅types.js
+```JavaScript
+export const ADD_TO_CART = 'add_to_cart';
+```
+
+### Reducer
+✅ clinet/src/_reducers/user_reducers.js
+```JavaScript
+import {
+    LOGIN_USER,
+    REGISTER_USER,
+    AUTH_USER,
+    LOGOUT_USER,
+    ADD_TO_CART
+} from '../_actions/types';
+ 
+
+export default function(state={},action){
+    switch(action.type){
+        case REGISTER_USER:
+            return {...state, register: action.payload }
+        case LOGIN_USER:
+            return { ...state, loginSucces: action.payload }
+        case AUTH_USER:
+            return {...state, userData: action.payload }
+        case LOGOUT_USER:
+            return {...state }
+        case ADD_TO_CART:
+            return {...state }
+        default:
+            return state;
+    }
+}
+```
+
+### ✅User routes 설정 server/routes/user.js
+```JavaScript
+router.post("/addToCart", auth, (req, res) => {
+   // 먼저 User Collection에 해당 유저의 정보를 가져오기
+
+   // 가져온 정보에서 카트에다 넣으려 하는 상품이 이미 들어 있는지 확인
+
+   // 상품이 이미 있을 때
+
+
+   // 상품이 이미 있지 않을 때
+});
+```
+
+
+📌 카트 안에 내가 추가하는 상품이 이미 있다면 -> 상품 개수 1개 올리기
+📌 이미 있지 않다면 -> Quantity는 1이됨
+📌 이렇게 카트에 상품이 추가 된 정보를 Redux 안에 저장 -> Auth Route 바꾸기 cart field와 history field 추가
