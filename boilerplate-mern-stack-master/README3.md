@@ -150,6 +150,59 @@ LandingPage.js
   };
 ```
 
+```JavaScript
+  const getProducts = (body) => {
+    axios.post("/api/product/products", body).then((response) => {
+      if (response.data.success) {
+        if (body.loadMore) {
+          setProducts([...Products, ...response.data.productInfo]);
+        } else {
+          setProducts(response.data.productInfo);
+        }
+        setPostSize(response.data.postSize);
+      } else {
+        alert("상품들을 가져오는데 실패 했습니다.");
+      }
+    });
+  };
+
+  const loadMoreHandler = () => {
+    let skip = Skip + Limit;
+
+    let body = {
+      skip: skip,
+      limit: Limit,
+      loadMore: true,
+      filters:Filters
+    };
+
+    getProducts(body);
+    setSkip(skip);
+  };
+  const renderCards = Products.map((product, index) => {
+    console.log(product);
+    return (
+      <Col lg={6} md={8} xs={24} key={index}>
+        <Card cover={<a href={`/product/${product._id}`}><ImageSlider images={product.images}/></a>} >
+          <Meta title={product.title} description={`${product.price}`} />
+        </Card>
+      </Col>
+    );
+  });
+
+  const showFilterResults = (filters) => {
+    let body = {
+      skip: 0,
+      limit: Limit,
+      filters: filters,
+    };
+
+    getProducts(body);
+    setSkip(0);
+  };
+
+```
+
 ✅ 3. 필터 기능을 위한 getProduct Router 수정
 
 product.js
