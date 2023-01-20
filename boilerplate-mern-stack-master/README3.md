@@ -1,5 +1,5 @@
 # _2023-01-18_
-
+## Component -> UI -> onChange Function -> state를 update parentComponent 
 ## 라디오 박스 필터 만들기 (가격에 따라서 요소들 필터링)
 
 1. RadioBox 리스트 데이터들 만들기
@@ -342,7 +342,7 @@ const updateSearchTerm = (newSearchTerm) => {
    let body = {
      skip:0,
      limit:Limit,
-     filters:Filters,
+     filters:Filters,  // 눌러져있는 거 필터로 가져오기
      SearchTerm:newSearchTerm
    }
    setSkip(0)
@@ -395,8 +395,8 @@ productSchema.index({
   title:'text',
   description:'text'
 },{
-  weights:{
-    title:5,
+  weights:{ // 검색이 어디에 걸려야 하는지 결정해주기
+    title:5, // 중요도
     description:1
   }
 })
