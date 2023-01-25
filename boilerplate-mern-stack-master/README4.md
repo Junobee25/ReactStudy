@@ -44,3 +44,5 @@ import CartPage from './views/CartPage/CartPage';
       </Badge>
 </Menu.Item>
 ```
+### 📌4. Cart안에 들어가 있는 상품들을 DB에서 가져오기
+-> userData에 들어있는 cart 상품의 quantity를 product로 합쳐주기
