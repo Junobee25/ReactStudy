@@ -81,4 +81,56 @@ export function getCartItems(cartItems,userCart){
 3. 카트 안에 있는 상품 총 금액 계산 -> item price x quantity
 4. 카트에서 제거하는 기능 만들기
 ### 📌 1. CartPage를 위한 UI 만들기 -> UserCardBlock Component
+✅ UserCardBlock.js 생성 (UserCardBlock.css) -> CartPage로 import
+```JavaScript
+import React from 'react'
+import "./UserCardBlock.css"
+function UserCardBlock(props) {
+    const renderCartImage = (images)=>{
+        if(images.length>0){
+            let image = images[0]
+            return `http://localhost:5000/${image}`
+        }
+    }
+    const renderItems=()=>(
+        props.products && props.products.map(product=>(
+            <tr>
+                <td>
+                    <img style={{width:'70px'}} alt="product" src={renderCartImage(product.images)}/>
+                </td>
+                <td>
+                    {product.quantity}EA
+                </td>
+                <td>
+                    $ {product.price}
+                </td>
+                <td>
+                    <button>
+                        Remove
+                    </button>
+                </td>
+            </tr>
+        ))
+    )
+  return (
+    <div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Product Image</th>
+                    <th>Product Quantity</th>
+                    <th>Product Price</th>
+                    <th>Remove from Cart</th>
+                </tr>
+            </thead>
+            <tbody>
+                {renderItems()}
+            </tbody>
+        </table>
+    </div>
+  )
+}
+
+export default UserCardBlock
+```
 
