@@ -66,9 +66,17 @@ export function getCartItems(cartItems,userCart){
     
     const request = axios.get(`/api/product/products_by_id?id=${cartItems}&type=array`)
     .then(response =>{
-        
+            // response 안에 들어있는 것은 product 상품의 정보
             // CartItems들에 해당하는 정보들을 Product Collection에서 가져온 후에
             // Quantity 정보를 넣어준다.
+            userCart.forEach(cartItems=>{
+                response.data.product.forEach((productDetail,index)=>{
+                    if(cartItems.id === productDetail._id){
+                        response.data.product[index].quantity = cartItems.quantity
+                    }
+                })
+            })
+            return response.data
     });
 
     return {

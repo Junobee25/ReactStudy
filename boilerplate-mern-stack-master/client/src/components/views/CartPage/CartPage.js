@@ -13,11 +13,11 @@ function CartPage(props) {
         props.user.userData.cart.forEach(item=>{
           cartItems.push(item.id)
         })
-        dispatch(getCartItems(cartItems,props.user.userData.cart))
+        dispatch(getCartItems(cartItems,props.user.userData.cart)) // action 실
       }
     }
 
-  }, [])
+  }, [props.user.userData])
   
   return (
     <div>CartPage</div>

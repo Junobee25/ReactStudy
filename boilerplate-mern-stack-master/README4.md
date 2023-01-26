@@ -5,7 +5,7 @@
 3. Cart 페이지를 위한 탭을 만들기 (rightmenu.js login됬을때)
 4. 카트 안에 들어가 있는 상품들을 DB에서 가져오기
 # _2023-01-25_
-### 📌1. auth 요청에 cart,history가 있다면 Redux Store에 넣어주기
+### 📌 1. auth 요청에 cart,history가 있다면 Redux Store에 넣어주기
 ```JavaScript
 router.get("/auth", auth, (req, res) => {
     res.status(200).json({
@@ -22,14 +22,14 @@ router.get("/auth", auth, (req, res) => {
     });
 });
 ```
-### 📌2. CartPage Route만들기 (다른 페이지 -> Cart 페이지)
+### 📌 2. CartPage Route만들기 (다른 페이지 -> Cart 페이지)
 ✅ App.js
 ```JavaScript
 import CartPage from './views/CartPage/CartPage'; 
 <Route exact path="/user/cart" component={Auth(CartPage, true)} />
 // exact path = cart 페이지의 경로 , 로그인 한 사람만 Add Cart 가능하므로 null -> true
 ```
-### 📌3. CartPage를 위한 Tap 만들기
+### 📌 3. CartPage를 위한 Tap 만들기
 -> antd에서 Icon,Badge 스타일 가져오기 (Login 됬을때 사용가능해야 함)  
 ✅ RightMenu.js
 ```JavaScript
@@ -44,5 +44,41 @@ import CartPage from './views/CartPage/CartPage';
       </Badge>
 </Menu.Item>
 ```
-### 📌4. Cart안에 들어가 있는 상품들을 DB에서 가져오기
+### 📌 4. Cart안에 들어가 있는 상품들을 DB에서 가져오기
 -> userData에 들어있는 cart 상품의 quantity를 product로 합쳐주기
+
+# _2023-01-26_
+### 📌 4. Cart안에 들어가 있는 상품들을 DB에서 가져오기 2
+✅ user_actions.js  
+CartPage에 
+ADD 한상품의 id와 productDeail의 id가 같다면 quantitiy를 ReduxState에 추가해줌
+```JavaScript
+export function getCartItems(cartItems,userCart){
+    
+    const request = axios.get(`/api/product/products_by_id?id=${cartItems}&type=array`)
+    .then(response =>{
+            // response 안에 들어있는 것은 product 상품의 정보
+            // CartItems들에 해당하는 정보들을 Product Collection에서 가져온 후에
+            // Quantity 정보를 넣어준다.
+            userCart.forEach(cartItems=>{
+                response.data.product.forEach((productDetail,index)=>{
+                    if(cartItems.id === productDetail._id){
+                        response.data.product[index].quantity = cartItems.quantity
+                    }
+                })
+            })
+            return response.data
+    });
+        return {
+        type: GET_CART_ITEMS,
+        payload: request
+    }
+}
+```
+## 쇼핑카트 페이지 만들기 2
+1. CartPage를 위한 UI 만들기 -> UserCardBlock Component
+2. DB에서 가져온 DB를 Browser에서 보여주기
+3. 카트 안에 있는 상품 총 금액 계산 -> item price x quantity
+4. 카트에서 제거하는 기능 만들기
+### 📌 1. CartPage를 위한 UI 만들기 -> UserCardBlock Component
+
