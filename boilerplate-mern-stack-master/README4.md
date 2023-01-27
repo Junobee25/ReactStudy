@@ -185,4 +185,70 @@ function CartPage(props) {
 
 export default CartPage
 ```
+# _2023-01-27_
+## 카트에 들어 있는 상품 지우기
+### 📌 props로 id 값을 가져와서 삭제
+✅ UserCardBlock.js
+```JavaScript
+<button onClick={() => props.removeItem(product._id)}> {/**CartPage에 removeItem이 작동 */}
+  Remove
+</button>
+```
+
+✅ CartPage.js  
+```JavaScript
+let calculateTotal = (cartDetail) => {
+    let total = 0;
+
+    cartDetail.map(item => {
+      total += parseInt(item.price,10) * item.quantity
+    })
+    setTotal(total)
+    setShowTotal(true)  // 정보다 있다면 true
+  }
+let removeFromCart = (productId) => {
+    dispatch(removeCartItem(productId))
+    .then(response=>{
+      if(response.payload.productInfo.length<=0){ // payload에 상품이 없을 때 state에 false줌
+        setShowTotal(false)
+      }
+    })
+  }
+```
+
+✅user.js  
+router에 get요청 -> pull로 상품 삭제 및 새로운 데이터 갱신
+```JavaScript
+router.get('/removeFromCart',auth,(req,res)=>{
+
+    //먼저 cart안에 내가 지우려고 한 상품을 지워주기
+    User.findOneAndUpdate(
+        {_id:req.user._id}, // auth middleware로 작성가능
+        {
+            "$pull":
+            {"cart":{"id":req.query.id}}
+        },
+        {new:true},
+        (err,userInfo) => {
+            let cart = userInfo.cart;
+            let array = cart.map(item=>{
+                return item.id
+            })
+            //product collection에서 현재 남아있는 상품들의 정보를 가져오기
+            Product.find({_id:{$in:array}})
+            .populate('writer')
+            .exec((err,productInfo)=>{
+                return res.status(200).json({
+                    productInfo,
+                    cart
+                })
+            })
+        }
+    ) 
+})
+```
+### 🤔 user_actions -> type -> reducer 
+
+### 카트에 있는 모든 상품 지운 다음
+📌 antd - empty로 UI 구현
 
