@@ -41,3 +41,26 @@ module.exports = { Payment };
 3. CartPage에 import 해준다.
 4. Button에 Style 적용한다.
 
+### 📌 추가 -> CartPage에 상품이 있을 때만 Paypal 보여주기
+```JavaScript
+{ShowTotal&&
+<Paypal/>
+}
+```
+### 📌 페이팔 client 는 강사님꺼 Paypal login은 내꺼
+
+### 📌 결제창에뜨는 Total 수정
+결제 창에뜨는 Total은 CartPage의 Total state로 가져와서 props를 주기
+✅ Paypal.js
+```JavaScript
+let env = 'sandbox'; // you can set here to 'production' for production
+let currency = 'USD'; // or you can set this value from your props or state
+let total = this.props.total;
+```
+### 📌 결제 후에 해야 할 일
+1. 카트 비우기
+2. 결제 정보 저장하기
+- Payment Collection (Detailed)
+- User Collection (Simple)
+
+
