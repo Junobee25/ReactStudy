@@ -56,11 +56,15 @@ module.exports = { Payment };
 let env = 'sandbox'; // you can set here to 'production' for production
 let currency = 'USD'; // or you can set this value from your props or state
 let total = this.props.total;
-```
-### 📌 결제 후에 해야 할 일
+``` 
+### 📌 결제 후에 해야 할 일 1 User Collection 안에 History 필드 안에 간단한 결제 정보 넣어주기
 1. 카트 비우기
 2. 결제 정보 저장하기
 - Payment Collection (Detailed)
 - User Collection (Simple)
+
+### 📌2. Payment Collection 안에 자세한 결제 정도 넣어주기
+
+
 
 
