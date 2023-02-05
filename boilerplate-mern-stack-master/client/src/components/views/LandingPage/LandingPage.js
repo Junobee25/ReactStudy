@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { FaCode } from "react-icons/fa";
 import axios from "axios";
-import { Icon, Col, Card, Row, Carousel, Radio } from "antd";
+import { Icon, Col, Card, Row, Carousel, Radio,Button } from "antd";
 import Meta from "antd/lib/card/Meta";
 import ImageSlider from "../../utils/ImageSlider";
 import Checkbox from "./Sections/CheckBox";
@@ -156,8 +156,9 @@ function LandingPage() {
       <Row gutter={[16]}>{renderCards}</Row>
 
       {PostSize >= Limit && (
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <button onClick={loadMoreHandler}>더보기</button>
+        <div style={{ display: "flex", justifyContent: "center", marginTop:'10px' }}>
+          {/**버튼 UI 수정 희망 */}
+          <Button onClick={loadMoreHandler}>더보기</Button>
         </div>
       )}
     </div>
