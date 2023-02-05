@@ -5,7 +5,7 @@ const { Product } = require("../models/Product");
 
 const { auth } = require("../middleware/auth");
 const { Payment } = require("../middleware/auth");
-
+const async = require(`async`)
 //=================================
 //             User
 //=================================
@@ -177,18 +177,42 @@ router.post("/successBuy", auth, (req, res) => {
     (err, user) => {
       if (err) return res.json({ success: false, err });
 
-        //payment에다가 transactionData정보 저장
-        const payment = new Payment(transactionData)
-        payment.save((err,doc)=>{
-            if(err) return res.json({success:false,err})
-
-            
-        }) // 모든 trasactionsData가 payment에 저장
-
-
+      //payment에다가 transactionData정보 저장
+      const payment = new Payment(transactionData);
+      payment.save((err, doc) => {
+        if (err) return res.json({ success: false, err });
+      }); // 모든 trasactionsData가 payment에 저장
     }
   );
   // 3. Product Collection 안에 있는 sold 필드 정보 업데이트 시켜주기
+
+  // 상품 당 몇개의 quantity를 샀는지
+
+  let products = [];
+  doc.product.forEach((item) => {
+    products.push({ id: item.id, quantity: item.quantity });
+  });
+        async.eachSeries(products,(item,callback)=>{
+            Product.update(
+                {_id:item.id},
+                {
+                    $inc:{
+                        "sold":item.quantity
+                    }
+                },
+                {new:false},
+                callback
+            )
+        }, (err) => {
+            if (err) return res.status(400).json({success:false,err})
+            res.status(200).json({
+                success:true,
+                cart:user.cart,
+                cartDetail:[]
+            })
+        }
+        )
+  
 });
 
 module.exports = router;

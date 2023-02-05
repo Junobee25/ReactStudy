@@ -65,6 +65,9 @@ let total = this.props.total;
 
 ### 📌2. Payment Collection 안에 자세한 결제 정도 넣어주기
 
+### 📌3. Product Collection 안에 있는 sold 필드 정보 업데이트 시켜주기
+🔔 모듈 다운 필요 (async)
+
 
 
 
