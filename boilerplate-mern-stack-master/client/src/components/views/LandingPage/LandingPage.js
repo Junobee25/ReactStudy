@@ -126,7 +126,7 @@ function LandingPage() {
         </h2>
       </div>
       {/** Filter */}
-      <Row gutter={[16, 16]}>
+      <Row gutter={[16, 16]}>Row
         <Col lg={12} xs={24}>
           {/** CheckBox */}
           <Checkbox
