@@ -3,7 +3,7 @@
 **`Error`**
 1. 프로젝트 생성하고 npm install 시 bcript 문제 :     
 **npm remove bcrypt 후 → npm install bcryptjs 하고 bcrypt부분 bcryptjs로 전부 바꾸기**
-2. npm run dev 문제 : **Node js 버전 다운그레이드 하기**
+2. npm run dev 문제 : **Node js 버전 다운그레이드 하기** v16.3.0에서 돌아감...
 3. [참고] MongoDB 접속 오류 : **querySrv ENODATA (MongoDB Atlas에 접속되지 않는 이슈)**  
 Connect your application의 VERSION -> 2.2.12 or later로 변경
 ### **업로드 페이지  만들기**
