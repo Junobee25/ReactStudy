@@ -11,19 +11,19 @@ import {
 } from './types';
 import { USER_SERVER } from '../components/Config.js';
 
-export function registerUser(dataToSubmit){
-    const request = axios.post(`${USER_SERVER}/register`,dataToSubmit)
+export function registerUser(dataToSubmit) {
+    const request = axios.post(`${USER_SERVER}/register`, dataToSubmit)
         .then(response => response.data);
-    
+
     return {
         type: REGISTER_USER,
         payload: request
     }
 }
 
-export function loginUser(dataToSubmit){
-    const request = axios.post(`${USER_SERVER}/login`,dataToSubmit)
-                .then(response => response.data);
+export function loginUser(dataToSubmit) {
+    const request = axios.post(`${USER_SERVER}/login`, dataToSubmit)
+        .then(response => response.data);
 
     return {
         type: LOGIN_USER,
@@ -31,9 +31,9 @@ export function loginUser(dataToSubmit){
     }
 }
 
-export function auth(){
+export function auth() {
     const request = axios.get(`${USER_SERVER}/auth`)
-    .then(response => response.data);
+        .then(response => response.data);
 
     return {
         type: AUTH_USER,
@@ -41,9 +41,9 @@ export function auth(){
     }
 }
 
-export function logoutUser(){
+export function logoutUser() {
     const request = axios.get(`${USER_SERVER}/logout`)
-    .then(response => response.data);
+        .then(response => response.data);
 
     return {
         type: LOGOUT_USER,
@@ -51,12 +51,13 @@ export function logoutUser(){
     }
 }
 
-export function addToCart(id){
+
+export function addToCart(id) {
     let body = {
-        productId : id
+        productId: id
     }
-    const request = axios.post(`${USER_SERVER}/addToCart`,body)
-    .then(response => response.data);
+    const request = axios.post(`${USER_SERVER}/addToCart`, body)
+        .then(response => response.data);
 
     return {
         type: ADD_TO_CART,
@@ -64,22 +65,23 @@ export function addToCart(id){
     }
 }
 
-export function getCartItems(cartItems,userCart){
-    
+
+export function getCartItems(cartItems, userCart) {
+
     const request = axios.get(`/api/product/products_by_id?id=${cartItems}&type=array`)
-    .then(response =>{
-            // response 안에 들어있는 것은 product 상품의 정보
-            // CartItems들에 해당하는 정보들을 Product Collection에서 가져온 후에
-            // Quantity 정보를 넣어준다.
-            userCart.forEach(cartItems=>{
-                response.data.forEach((productDetail,index)=>{
-                    if(cartItems.id === productDetail._id){
-                        response.data[index].quantity = cartItems.quantity
+        .then(response => {
+            // CartItem들에 해당하는 정보들을  
+            // Product Collection에서 가져온후에 
+            // Quantity 정보를 넣어 준다.
+            userCart.forEach(cartItem => {
+                response.data.forEach((productDetail, index) => {
+                    if (cartItem.id === productDetail._id) {
+                        response.data[index].quantity = cartItem.quantity
                     }
                 })
             })
-            return response.data
-    });
+            return response.data;
+        });
 
     return {
         type: GET_CART_ITEMS,
@@ -87,40 +89,38 @@ export function getCartItems(cartItems,userCart){
     }
 }
 
-export function removeCartItem(productId){
-    
+
+export function removeCartItem(productId) {
+
     const request = axios.get(`/api/users/removeFromCart?id=${productId}`)
-    .then(response =>{
-
-
-            //productInfo, cart 정보를 조합해서 CartDetail을 만든다.
-            response.data.cart.forEach(item=>{
-                response.data.productInfo.forEach((product,index)=>{
-                    if(item.id === product._id){
+        .then(response => {
+            //productInfo ,  cart 정보를 조합해서   CartDetail을 만든다. 
+            response.data.cart.forEach(item => {
+                response.data.productInfo.forEach((product, index) => {
+                    if (item.id === product._id) {
                         response.data.productInfo[index].quantity = item.quantity
                     }
+
                 })
             })
-           
-            return response.data
-    });
+            return response.data;
+        });
 
     return {
         type: REMOVE_CART_ITEM,
         payload: request
     }
 }
-export function onSuccessBuy(data){
-    
-    const request = axios.post(`/api/users/successBuy`,data)
-    .then(response => response.data);
-           
-            
+
+
+
+export function onSuccessBuy(data) {
+
+    const request = axios.post(`/api/users/successBuy`, data)
+        .then(response => response.data);
 
     return {
         type: ON_SUCCESS_BUY,
         payload: request
     }
 }
-
-
