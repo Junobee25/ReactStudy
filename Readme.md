@@ -17,3 +17,16 @@
 * mongoDB
 * Redux
 * Express Js
+
+>### 시연영상
+* 메인화면
+<img width="1000px" src="https://github.com/Junobee25/ReactStudy/assets/109403631/c7401a9b-2502-46e0-a941-28feddecdd20">
+
+* 회원가입 로그인
+<img width="1000px" src="https://github.com/Junobee25/ReactStudy/assets/109403631/a84da728-00d7-422f-8690-9077b213fa5d">
+
+* 상품 업로드 및 상세페이지 
+<img width="1000px" src="https://github.com/Junobee25/ReactStudy/assets/109403631/b9f15189-1597-44d7-bc9f-a9c67772c497">
+
+* 장바구니 추가 및 페이팔 결제
+<img width="1000px" src="https://github.com/Junobee25/ReactStudy/assets/109403631/f7efd723-d75c-4f8b-8d7d-919423d948e6">
